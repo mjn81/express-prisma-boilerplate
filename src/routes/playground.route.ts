@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 
 import { ServerError } from '../errors';
-import { validate } from '../guards';
+import { validatorGuard } from '../guards';
 import { Device } from '../models';
 import { playgroundValidator } from '../validators';
 
@@ -19,7 +19,7 @@ router.get('/error', (_req: Request, _res: Response) => {
 
 router.get(
 	'/validator',
-	validate(playgroundValidator),
+	validatorGuard(playgroundValidator),
 	(_req: Request, res: Response) => {
 		res.json({
 			message: 'passed!!',
