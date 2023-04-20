@@ -1,0 +1,20 @@
+{
+	"compilerOptions": {
+		"lib": ["es5", "es6", "dom"],
+		"target": "es6",
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"outDir": "./dist",
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"isolatedModules": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"noImplicitAny": false,
+		"allowSyntheticDefaultImports": true,
+		"skipLibCheck": true,
+		
+	},
+	"include": ["src/**/*.ts", "__test__/**/*.ts"],
+	"exclude": ["node_modules", "**/*.d.ts", "tsconfig.json"]
+}
