@@ -13,7 +13,8 @@
 		"noImplicitAny": false,
 		"allowSyntheticDefaultImports": true,
 		"skipLibCheck": true,
-		
+		"strict": true,
+		"alwaysStrict": true
 	},
 	"include": ["src/**/*.ts", "__test__/**/*.ts"],
 	"exclude": ["node_modules", "**/*.d.ts", "tsconfig.json"]
