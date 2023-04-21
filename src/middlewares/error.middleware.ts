@@ -1,7 +1,12 @@
+import {
+	PrismaClientInitializationError,
+	PrismaClientKnownRequestError,
+	PrismaClientUnknownRequestError,
+} from '@prisma/client/runtime/library';
 import { NextFunction, Request, Response } from 'express';
-import { QueryFailedError } from 'typeorm';
+import { TokenExpiredError } from 'jsonwebtoken';
 import { ValidationError } from 'yup';
-import { ERROR_CODES } from '../constants';
+import { HTTP_CODES } from '../constants';
 
 import { CustomError } from '../errors';
 import Logger from '../global/logger';
@@ -12,15 +17,26 @@ export const errorMiddleware = (
 	res: Response,
 	_next: NextFunction
 ) => {
-	if (error instanceof QueryFailedError) {
-		Logger.error(error.message, Logger.stringError('-"query failure"-') , error.query);
-		return res.status(ERROR_CODES.BAD_REQUEST).json({
-			message: error.message,
-			code: ERROR_CODES.BAD_REQUEST,
+	Logger.error(error.message);
+
+	if (error instanceof TokenExpiredError) {
+		return res.status(HTTP_CODES.UNAUTHORIZED).json({
+			message: 'Token expired',
+			code: HTTP_CODES.UNAUTHORIZED,
 		});
 	}
 
-	Logger.error(error.message);
+	if (
+		error instanceof PrismaClientKnownRequestError ||
+		error instanceof PrismaClientInitializationError ||
+		error instanceof PrismaClientUnknownRequestError
+	) {
+		return res.status(HTTP_CODES.BAD_REQUEST).json({
+			message: error.message,
+			code: HTTP_CODES.BAD_REQUEST,
+		});
+	}
+
 	if (error instanceof CustomError) {
 		return res.status(error.getCode()).json({
 			message: error.getMessage(),
@@ -28,14 +44,14 @@ export const errorMiddleware = (
 		});
 	}
 	if (error instanceof ValidationError) {
-		return res.status(ERROR_CODES.UNPROCESSABLE_ENTITY).json({
+		return res.status(HTTP_CODES.UNPROCESSABLE_ENTITY).json({
 			message: error.message,
-			code: ERROR_CODES.UNPROCESSABLE_ENTITY,
+			code: HTTP_CODES.UNPROCESSABLE_ENTITY,
 		});
 	}
 
-	return res.status(ERROR_CODES.INTERNAL_SERVER_ERROR).json({
+	return res.status(HTTP_CODES.INTERNAL_SERVER_ERROR).json({
 		message: 'oops! something went wrong!',
-		code: ERROR_CODES.INTERNAL_SERVER_ERROR,
+		code: HTTP_CODES.INTERNAL_SERVER_ERROR,
 	});
 };

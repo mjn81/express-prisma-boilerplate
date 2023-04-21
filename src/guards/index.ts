@@ -2,8 +2,6 @@ import express from 'express';
 
 import { loggerGuard } from './logger.guard';
 
-export * from './validate.guard';
-
 export const guards = [
 	loggerGuard,
 	express.urlencoded({ extended: true }),
@@ -13,3 +11,6 @@ export const guards = [
 		dotfiles: 'ignore',
 	}),
 ];
+
+export * from './validate.guard';
+export * from './auth.guard';

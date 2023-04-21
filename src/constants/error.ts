@@ -1,4 +1,4 @@
-export const ERROR_CODES = {
+export const HTTP_CODES = {
 	/** @default 200  */
 	OK: 200,
 	/** @default 201  */

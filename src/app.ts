@@ -1,26 +1,18 @@
 import type { IRoute, Middleware } from './interfaces';
 
 import express, { Application } from 'express';
-import { appDataSource } from './config';
+import { prisma } from './config';
 import Logger from './global/logger';
-
 
 export class App {
 	private app: Application;
 	constructor(private port: number) {
 		this.app = express();
-    this.initializeDatabase();
-  }
+		this.initializeDatabase();
+	}
 
 	private initializeDatabase(): void {
-		appDataSource
-			.initialize()
-			.then(() => {
-				Logger.success('Database initialized successfully');
-			})
-			.catch((err) => {
-				Logger.error('An error occured during database initialization:', err.message);
-			});
+		// prisma doesn't need one :)
 	}
 
 	private generateGuardRouteMiddlewares(guards: Middleware[]): void {
@@ -42,13 +34,16 @@ export class App {
 		routes: IRoute[],
 		guards: Middleware[] = [],
 		middlewares: Middleware[] = []
-  ): void {
+	): void {
 		this.generateGuardRouteMiddlewares(guards);
 		this.generateRoutes(routes);
 		this.generatePostRouteMiddlewares(middlewares);
 		this.app.listen(this.port, () => {
 			Logger.success('App listening on port', this.port);
-			Logger.info('Loaded routes', routes.map((route) => route.path).join(', '));
+			Logger.info(
+				'Loaded routes',
+				routes.map((route) => route.path).join(', ')
+			);
 		});
 	}
 }

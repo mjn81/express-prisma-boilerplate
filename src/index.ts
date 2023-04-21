@@ -7,7 +7,6 @@ import { middlewares } from './middlewares';
 import { routes } from './routes';
 import { guards } from './guards';
 
-
 const main = () => {
 	dotenv();
 	const PORT = Number(getEnv('PORT'));

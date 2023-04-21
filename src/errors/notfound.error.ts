@@ -1,8 +1,8 @@
-import { ERROR_CODES } from "../constants";
+import { HTTP_CODES } from "../constants";
 import { CustomError } from "./custom.error";
 
 export class NotFoundError extends CustomError {
   constructor(reason?: string) {
-    super(ERROR_CODES.NOT_FOUND ,'Not Found: ' + reason);
+    super(HTTP_CODES.NOT_FOUND ,'Not Found: ' + reason);
   }
 }
