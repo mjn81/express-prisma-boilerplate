@@ -10,7 +10,7 @@ import type {
 } from '../interfaces';
 
 import Logger from '../global/logger';
-import { UnauthorizedError } from '../errors';
+import { BadRequestError, UnauthorizedError } from '../errors';
 import { getEnv } from '../utils';
 import { prisma } from '../config';
 
@@ -34,11 +34,14 @@ class AuthService {
 	}
 
 	public async register({ email, password, username }: Register) {
-		await prisma.user.findUniqueOrThrow({
+		const foundUser = await prisma.user.findUnique({
 			where: {
 				email,
 			},
 		});
+		if (foundUser) {
+			throw new BadRequestError('user exist');
+		}
 		const hashedPassword = await hash(password);
 		const user = await prisma.user.create({
 			data: {
@@ -51,13 +54,13 @@ class AuthService {
 		return user;
 	}
 
-	public async generateToken(data: IToken, device: Omit<IDevice, 'id'>) {
+	public async generateToken(data: IToken, deviceName: string) {
 		const foundTokens = await prisma.token.findFirst({
 			where: {
 				AND: [
 					{
 						device: {
-							name: device.name,
+							name: deviceName,
 						},
 					},
 					{
@@ -93,7 +96,7 @@ class AuthService {
 
 		const refresh = this.createToken(data, 'refresh');
 
-		await prisma.token.create({
+		const token = await prisma.token.create({
 			data: {
 				access,
 				refresh,
@@ -104,12 +107,12 @@ class AuthService {
 				},
 				device: {
 					create: {
-						name: device.name,
+						name: deviceName,
 					},
 				},
 			},
 		});
-		return { access, refresh };
+		return { access: token.access, refresh:token.refresh };
 	}
 
 	public async verifyAndCheckToken(access: string): Promise<IToken> {
@@ -135,7 +138,7 @@ class AuthService {
 	public verifyToken(token: string, type: TokenType) {
 		const key =
 			type === 'access'
-				? getEnv('TOKEN_EXIPIRATION_DATE')
+				? getEnv('TOKEN_SECRET')
 				: getEnv('REFRESH_TOKEN_SECRET');
 		return jwt.verify(token, key) as IToken;
 	}
@@ -185,6 +188,28 @@ class AuthService {
 				password: hashedPassword,
 			},
 		});
+	}
+
+	public async getAllTokensAndDevices(uid: string) {
+		const tokens = await prisma.token.findMany({
+			where: {
+				user: {
+					id: uid,
+				},
+			},
+			select: {
+				access: true,
+				refresh: true,
+				id: true,
+				device: {
+					select: {
+						name: true,
+					},
+				},
+			},
+		});
+
+		return tokens;
 	}
 
 	private createToken(data: IToken, type: TokenType) {

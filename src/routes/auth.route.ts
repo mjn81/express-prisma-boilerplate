@@ -30,6 +30,7 @@ router.post(
 router.post('/logout/all', authGaurd, authController.logoutAll);
 router.post('/logout', authGaurd, authController.logout);
 router.get('/me', authGaurd, authController.profile);
+router.get('/devices', authGaurd, authController.devices)
 
 export const authRoute = {
 	path: '/auth',

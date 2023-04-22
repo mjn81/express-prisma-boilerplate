@@ -9,10 +9,8 @@ export const authGaurd = async (req: Request, _res: Response, next: NextFunction
 	const token = (req.headers['Authorization'] ??
 		req.headers['authorization']) as string | undefined;
 	if (!token) throw new ForbiddenError('Credentials needed');
-	const content = token.split(' ')[1];
-	if (!content) throw new ForbiddenError('Credentials needed');
-	const decoded = await authService.verifyAndCheckToken(content);
-	if (!decoded.id) throw new UnauthorizedError('Invalid Token');
+	const decoded = await authService.verifyAndCheckToken(token);
+	if (!decoded.id) throw new UnauthorizedError('Invalid Credentials');
 	// @ts-expect-error
 	req.user = decoded;
 	return next();
